@@ -1,0 +1,1054 @@
+/* ══════════════════════════════════════════════════════════════
+   หน้าตาทั้งหมดของเว็บ
+   ออกแบบสำหรับจอมือถือแนวตั้งก่อน แล้วค่อยเผื่อจอใหญ่ด้านล่าง
+   ══════════════════════════════════════════════════════════════ */
+
+:root {
+  --ดำ:        #05070f;
+  --กรม:       #0b1030;
+  --กรมอ่อน:   #141c46;
+  --ทอง:       #f0c56a;
+  --ทองอ่อน:   #fbe7b4;
+  --ชมพู:      #ff4d6d;
+  --ครีม:      #f7f0e3;
+
+  /* Mali = ลายมือไทยตัวกลม อบอุ่น อ่านง่ายบนจอเล็ก
+     Fredoka = ตัวอังกฤษกลมป้อม สดใส ใช้เฉพาะคำว่า HAPPY BIRTHDAY
+     (Fredoka ไม่มีตัวไทย จึงต้องใช้คู่กัน ห้ามเอาไปใส่ข้อความไทย) */
+  --ฟอนต์อังกฤษ: 'Fredoka', 'Mali', sans-serif;
+  --ฟอนต์ไทย:   'Mali', sans-serif;
+  --ฟอนต์ยูไอ:  'Mali', system-ui, sans-serif;
+
+  /* ช้าคือหัวใจของงานนี้ อย่าเร่ง */
+  --จังหวะ: 900ms;
+  --โค้ง: cubic-bezier(.22,.61,.36,1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--ดำ);
+}
+
+/* จอต้องไม่เลื่อน ทุกฉากพอดีหนึ่งหน้าจอ */
+html { height: 100%; }
+
+body {
+  min-height: 100dvh;
+  font-family: var(--ฟอนต์ไทย);
+  color: var(--ครีม);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+
+  /* ท้องฟ้ากลางคืน ไล่จากกรมเข้มลงไปหาดำ ไม่ใช่ดำสนิทจะได้ไม่แบน */
+  background:
+    radial-gradient(ellipse 120% 80% at 50% 0%,  #1a2358 0%, transparent 60%),
+    radial-gradient(ellipse 100% 70% at 50% 100%, #160f2e 0%, transparent 65%),
+    linear-gradient(#0a0f2b 0%, #05070f 100%);
+  /* ห้ามใช้ background-attachment: fixed
+     ซาฟารีบนมือถือเรนเดอร์พลาดเป็นกล่องสี่เหลี่ยมค้างกลางจอ */
+}
+
+/* ───────────── ดาว ───────────── */
+
+#ดาว {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+#ดาว i {
+  position: absolute;
+  width: 2px; height: 2px;
+  border-radius: 50%;
+  background: #fff;
+  animation: กะพริบ var(--ช่วง, 4s) ease-in-out infinite;
+  animation-delay: var(--ดีเลย์, 0s);
+}
+
+@keyframes กะพริบ {
+  0%, 100% { opacity: .15; transform: scale(.8); }
+  50%      { opacity: .9;  transform: scale(1.15); }
+}
+
+/* ───────────── ชั้นพลุ ───────────── */
+
+#พลุ {
+  position: fixed;
+  inset: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ───────────── ปุ่มปิดเสียง ───────────── */
+
+/* ต้องมาก่อนกฎหลัก เพราะ display:grid ข้างล่างจะทับ hidden ของ HTML
+   ไม่งั้นปุ่มเสียงโผล่ตั้งแต่ฉากซองทั้งที่ยังไม่มีเพลง */
+#ปุ่มเสียง[hidden] { display: none; }
+
+#ปุ่มเสียง {
+  position: fixed;
+  top: max(14px, env(safe-area-inset-top));
+  right: 14px;
+  z-index: 50;
+  width: 40px; height: 40px;
+  display: grid; place-items: center;
+  border: 1px solid rgba(240,197,106,.28);
+  border-radius: 50%;
+  background: rgba(8,11,28,.55);
+  backdrop-filter: blur(6px);
+  color: var(--ทอง);
+  cursor: pointer;
+  opacity: .5;
+  transition: opacity .3s;
+}
+#ปุ่มเสียง:hover, #ปุ่มเสียง:focus-visible { opacity: 1; }
+#ปุ่มเสียง svg { fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; }
+#ปุ่มเสียง .ลำโพง { fill: currentColor; stroke: none; }
+#ปุ่มเสียง .กากบาท { opacity: 0; }
+#ปุ่มเสียง.เงียบ .คลื่น  { opacity: 0; }
+#ปุ่มเสียง.เงียบ .กากบาท { opacity: 1; }
+
+/* ───────────── เวทีและฉาก ───────────── */
+
+#เวที { position: relative; z-index: 2; }
+
+.ฉาก {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: clamp(1.25rem, 6vw, 3rem);
+  padding-top: max(3.5rem, env(safe-area-inset-top));
+  padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+  text-align: center;
+
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity var(--จังหวะ) var(--โค้ง), visibility 0s linear var(--จังหวะ);
+}
+
+.ฉาก.แสดง {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity var(--จังหวะ) var(--โค้ง), visibility 0s;
+}
+
+/* ───────────── ① ซองจดหมาย ───────────── */
+
+.ซอง-กรอบ { perspective: 900px; }
+
+.ซอง {
+  position: relative;
+  display: block;
+  width: min(74vw, 290px);
+  aspect-ratio: 3 / 2;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  transform-style: preserve-3d;
+  animation: ลอย 5s ease-in-out infinite;
+  filter: drop-shadow(0 18px 40px rgba(0,0,0,.6));
+}
+
+@keyframes ลอย {
+  0%, 100% { transform: translateY(0)     rotate(-.4deg); }
+  50%      { transform: translateY(-11px) rotate(.4deg); }
+}
+
+.ซอง span { position: absolute; inset: 0; display: block; }
+
+/* แผ่นหลังของซอง */
+.ซอง-หลัง {
+  background: linear-gradient(160deg, #f3e6cd 0%, #e2cfa8 100%);
+  border-radius: 4px;
+}
+
+/* กระเป๋าหน้า เป็นรูปตัว V */
+.ซอง-ตัว {
+  background: linear-gradient(200deg, #efdfc0 0%, #d9c297 100%);
+  border-radius: 4px;
+  clip-path: polygon(0 0, 50% 46%, 100% 0, 100% 100%, 0 100%);
+  z-index: 3;
+}
+
+/* ฝาบนที่จะเปิด */
+.ซอง-ฝา {
+  background: linear-gradient(170deg, #f6ebd6 0%, #e6d3ad 100%);
+  border-radius: 4px 4px 0 0;
+  clip-path: polygon(0 0, 100% 0, 50% 62%);
+  transform-origin: top center;
+  transition: transform 1.1s var(--โค้ง), filter 1.1s var(--โค้ง);
+  z-index: 4;
+  backface-visibility: hidden;
+}
+
+/* ตราผนึกสีทอง
+   ต้องเขียน .ซอง นำหน้า ไม่งั้นกฎ `.ซอง span { inset:0 }` ข้างบนชนะ
+   (element selector ทำให้ specificity สูงกว่า class เดี่ยว)
+   แล้วตราจะไปเกาะมุมซ้ายบนของซองแทนที่จะอยู่กลาง */
+.ซอง .ซอง-ตรา {
+  position: absolute;
+  inset: auto;
+  top: 46%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 54px; height: 54px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ffdf9b, var(--ทอง) 45%, #b8873a 100%);
+  color: #6d3b2a;
+  font-size: 1.5rem;
+  line-height: 1;
+  box-shadow: 0 3px 10px rgba(0,0,0,.45), inset 0 -2px 6px rgba(0,0,0,.25);
+  z-index: 5;
+  transition: transform .5s var(--โค้ง), opacity .5s;
+}
+
+.ซอง.เปิด .ซอง-ฝา  { transform: rotateX(178deg); filter: brightness(.82); z-index: 1; }
+.ซอง.เปิด .ซอง-ตรา { transform: translate(-50%,-50%) scale(1.7); opacity: 0; }
+
+.คำชวน {
+  font-family: var(--ฟอนต์ยูไอ);
+  font-size: .95rem;
+  font-weight: 300;
+  letter-spacing: .18em;
+  color: rgba(247,240,227,.62);
+  animation: หายใจ 2.8s ease-in-out infinite;
+}
+
+@keyframes หายใจ {
+  0%, 100% { opacity: .35; }
+  50%      { opacity: 1; }
+}
+
+/* ───────────── ② จดหมาย ───────────── */
+
+.กระดาษ {
+  width: min(88vw, 460px);
+  padding: clamp(1.75rem, 7vw, 2.75rem);
+  border-radius: 3px;
+  background: linear-gradient(170deg, #fdf8ee 0%, #f2e8d4 100%);
+  box-shadow: 0 24px 60px rgba(0,0,0,.55);
+  color: #3a3226;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.กระดาษ-เนื้อ {
+  display: flex;
+  flex-direction: column;
+  gap: .9rem;
+  font-size: clamp(1.12rem, 4.6vw, 1.4rem);
+  line-height: 1.75;
+}
+
+/* แต่ละบรรทัดโผล่ทีละบรรทัด ไม่ใช่พรึ่บทีเดียว */
+.กระดาษ-เนื้อ p {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: ผุด .95s var(--โค้ง) forwards;
+  animation-delay: var(--ดีเลย์, 0s);
+}
+
+@keyframes ผุด {
+  to { opacity: 1; transform: none; }
+}
+
+.ปุ่ม {
+  align-self: center;
+  padding: .62rem 1.9rem;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #f5d183, #cfa04f);
+  color: #3a2a10;
+  font-family: var(--ฟอนต์ไทย);
+  font-size: 1.05rem;
+  cursor: pointer;
+  opacity: 0;
+  animation: ผุด .8s var(--โค้ง) forwards;
+  animation-delay: var(--ดีเลย์, 0s);
+  transition: transform .2s, box-shadow .2s;
+  box-shadow: 0 6px 18px rgba(0,0,0,.3);
+}
+.ปุ่ม:active { transform: scale(.96); }
+
+.ปุ่ม-โปร่ง {
+  background: none;
+  border: 1px solid rgba(240,197,106,.45);
+  color: var(--ทอง);
+  box-shadow: none;
+}
+
+/* ───────────── ③ ปฏิทิน ───────────── */
+
+.คำถาม {
+  font-size: clamp(1.15rem, 5vw, 1.5rem);
+  line-height: 1.6;
+  max-width: 22ch;
+  color: var(--ทองอ่อน);
+}
+
+.ปฏิทิน {
+  width: min(90vw, 360px);
+  padding: 1.1rem;
+  border: 1px solid rgba(240,197,106,.2);
+  border-radius: 14px;
+  background: rgba(11,16,48,.55);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 18px 50px rgba(0,0,0,.5);
+}
+
+.ปฏิทิน-หัว {
+  font-family: var(--ฟอนต์ไทย);   /* หัวเป็นชื่อเดือนภาษาไทย ใช้ฟอนต์อังกฤษไม่ได้ */
+  font-size: 1.35rem;
+  letter-spacing: .1em;
+  color: var(--ทอง);
+  margin-bottom: .85rem;
+}
+
+.ปฏิทิน-สัปดาห์,
+.ปฏิทิน-ช่อง {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.ปฏิทิน-สัปดาห์ span {
+  font-family: var(--ฟอนต์ยูไอ);
+  font-size: .68rem;
+  font-weight: 400;
+  color: rgba(247,240,227,.4);
+  padding-bottom: .4rem;
+}
+
+.ปฏิทิน-ช่อง button {
+  aspect-ratio: 1;
+  border: 0;
+  border-radius: 9px;
+  background: rgba(255,255,255,.05);
+  color: var(--ครีม);
+  font-family: var(--ฟอนต์ยูไอ);
+  font-size: .95rem;
+  cursor: pointer;
+  transition: background .2s, transform .2s;
+}
+.ปฏิทิน-ช่อง button:active { transform: scale(.9); }
+.ปฏิทิน-ช่อง .ว่าง { background: none; cursor: default; }
+
+/* กดผิด: สั่นเบา ๆ */
+.ปฏิทิน.ผิด { animation: สั่น .45s; }
+@keyframes สั่น {
+  0%,100% { transform: translateX(0); }
+  20% { transform: translateX(-7px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(3px); }
+}
+
+/* กดถูก: เรืองแสงทอง */
+.ปฏิทิน-ช่อง button.ถูก {
+  background: radial-gradient(circle, #ffe9b0, var(--ทอง));
+  color: #55340c;
+  animation: เรือง 1s ease-out forwards;
+}
+@keyframes เรือง {
+  0%   { box-shadow: 0 0 0 0 rgba(240,197,106,.7); }
+  100% { box-shadow: 0 0 0 26px rgba(240,197,106,0); }
+}
+
+.คำหยอก {
+  min-height: 1.6em;
+  font-size: 1.02rem;
+  color: rgba(247,240,227,.75);
+  opacity: 0;
+  transition: opacity .35s;
+}
+.คำหยอก.โชว์ { opacity: 1; }
+
+/* ───────────── ④ พลุ ───────────── */
+
+#ฉาก-พลุ { gap: .6rem; }
+
+.คำใหญ่ {
+  font-family: var(--ฟอนต์อังกฤษ);
+  font-weight: 600;
+  font-size: clamp(2rem, 10.5vw, 4.6rem);
+  letter-spacing: .02em;
+  line-height: 1.05;
+  filter: drop-shadow(0 0 22px rgba(240,197,106,.4));
+}
+
+/* ไล่เฉดต้องทำที่ตัวอักษรแต่ละตัว ไม่ใช่ที่กล่องแม่
+   เพราะลูกที่มี transform จะหลุดออกจากการตัดสีของแม่ แล้วตัวหนังสือหายทั้งคำ */
+/* เคยใช้ไล่เฉด + background-clip:text แล้วตัวอักษรบางตัวกลายเป็นก้อนทึบ
+   อาการไม่คงเส้นคงวาข้ามเบราว์เซอร์ งานนี้ยิงครั้งเดียวจึงไม่เสี่ยง
+   ใช้สีทึบแล้วทำมิติด้วยเงาแทน ได้ลุคกลม ๆ สดใสเข้ากับ Fredoka */
+.คำใหญ่ span {
+  color: #f7d387;
+  text-shadow:
+    0 2px 0 #cf9a34,
+    0 3px 0 #b8862a,
+    0 0 26px rgba(240,197,106,.5);
+}
+
+/* ตัวอักษรโผล่ทีละตัว */
+.คำใหญ่ span {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(18px) scale(.9);
+  animation: ผุดตัว .75s var(--โค้ง) forwards;
+  animation-delay: var(--ดีเลย์, 0s);
+}
+.คำใหญ่ .เว้น { width: .32em; }
+
+@keyframes ผุดตัว {
+  to { opacity: 1; transform: none; }
+}
+
+.เลขอายุ {
+  font-family: var(--ฟอนต์อังกฤษ);
+  font-size: clamp(3rem, 20vw, 7rem);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--ชมพู);
+  text-shadow: 0 0 34px rgba(255,77,109,.55);
+  opacity: 0;
+  animation: ผุด 1.2s var(--โค้ง) forwards;
+  animation-delay: 1.9s;
+}
+
+.คำรอง {
+  font-size: clamp(1.02rem, 4.4vw, 1.3rem);
+  color: rgba(247,240,227,.85);
+  max-width: 24ch;
+  line-height: 1.7;
+  opacity: 0;
+  animation: ผุด 1.2s var(--โค้ง) forwards;
+  animation-delay: 2.6s;
+}
+
+/* ───────────── ⑤ สไลด์ ───────────── */
+
+#ฉาก-สไลด์ { justify-content: flex-end; gap: 1.1rem; }
+
+.สไลด์-เวที {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: -1;
+}
+
+.สไลด์-เวที img {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 1.4s var(--โค้ง);
+  will-change: transform, opacity;
+}
+
+.สไลด์-เวที img.แสดง {
+  opacity: 1;
+  animation: เคนเบิร์นส์ var(--นาน, 6s) linear forwards;
+}
+
+/* ภาพขยับช้า ๆ แบบสารคดี */
+@keyframes เคนเบิร์นส์ {
+  from { transform: scale(1.02) translate(0, 0); }
+  to   { transform: scale(1.14) translate(var(--เลื่อนx, -1.5%), var(--เลื่อนy, -1.5%)); }
+}
+
+/* ไล่เฉดดำจากล่างขึ้นบน ให้ตัวหนังสืออ่านออกบนรูปสว่าง */
+.สไลด์-เวที::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(transparent 32%, rgba(5,7,15,.82) 88%);
+}
+
+.สไลด์-คำ {
+  position: relative;
+  z-index: 2;
+  min-height: 5.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+}
+
+.สไลด์-หัว {
+  font-size: clamp(1.35rem, 6.2vw, 2rem);
+  color: var(--ทองอ่อน);
+  line-height: 1.4;
+}
+
+.สไลด์-รอง {
+  font-size: clamp(.98rem, 4.2vw, 1.15rem);
+  color: rgba(247,240,227,.78);
+  line-height: 1.6;
+}
+
+.สไลด์-หัว.เข้า, .สไลด์-รอง.เข้า {
+  animation: ผุด 1s var(--โค้ง) backwards;
+}
+.สไลด์-รอง.เข้า { animation-delay: .25s; }
+
+.สไลด์-คุม {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: min(92vw, 420px);
+}
+
+.ปุ่มเล็ก {
+  border: 0;
+  background: none;
+  color: rgba(247,240,227,.45);
+  font-family: var(--ฟอนต์ยูไอ);
+  font-size: .82rem;
+  letter-spacing: .06em;
+  padding: .4rem .6rem;
+  cursor: pointer;
+  transition: color .25s;
+}
+.ปุ่มเล็ก:hover { color: var(--ทอง); }
+
+.สไลด์-จุด { display: flex; gap: 6px; }
+.สไลด์-จุด i {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: rgba(247,240,227,.25);
+  transition: background .35s, transform .35s;
+}
+.สไลด์-จุด i.นี่ { background: var(--ทอง); transform: scale(1.45); }
+
+/* ───────────── ⑥ ปิดท้าย ───────────── */
+
+.ปิดท้าย-เนื้อ {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-size: clamp(1.18rem, 5.2vw, 1.6rem);
+  line-height: 1.85;
+  max-width: 24ch;
+  color: var(--ครีม);
+}
+
+.ปิดท้าย-เนื้อ p {
+  opacity: 0;
+  animation: ผุด 1.3s var(--โค้ง) forwards;
+  animation-delay: var(--ดีเลย์, 0s);
+}
+
+.ลงชื่อ {
+  font-size: 1.1rem;
+  color: var(--ทอง);
+  opacity: 0;
+  animation: ผุด 1.3s var(--โค้ง) forwards;
+  animation-delay: var(--ดีเลย์, 0s);
+}
+
+#ปุ่มดูใหม่ {
+  margin-top: 1rem;
+  animation-delay: var(--ดีเลย์, 0s);
+}
+
+/* ───────────── จอใหญ่ ───────────── */
+
+@media (min-width: 720px) {
+  .ฉาก { gap: 2rem; }
+  .สไลด์-คำ { max-width: 32ch; }
+}
+
+/* เคารพคนที่ตั้งเครื่องไว้ว่าไม่อยากเห็นภาพเคลื่อนไหว */
+@media (prefers-reduced-motion: reduce) {
+  .ซอง { animation: none; }
+  .สไลด์-เวที img.แสดง { animation: none; }
+  * { transition-duration: .2s !important; }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ของเล่นสาย TFT
+   ══════════════════════════════════════════════════════════════ */
+
+/* ───────────── ตัวละคร (ใช้ร่วมกันทุกที่) ───────────── */
+
+.ตัว { width: 100%; height: 100%; overflow: visible; }
+.ตัว-เงา { fill: rgba(0,0,0,.4); }
+
+/* ขาสลับยืดหดให้เหมือนก้าวเดิน */
+.เดิน .ตัว-ขา rect:first-child { animation: ขาหน้า .42s steps(2, end) infinite; }
+.เดิน .ตัว-ขา rect:last-child  { animation: ขาหลัง .42s steps(2, end) infinite; }
+@keyframes ขาหน้า { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+@keyframes ขาหลัง { 0%,100% { transform: translateY(-4px); } 50% { transform: translateY(0); } }
+
+/* ───────────── กระดานหกเหลี่ยม ───────────── */
+
+.หกเหลี่ยม {
+  position: absolute;
+  inset: -6% -14%;
+  z-index: -1;
+  opacity: .5;
+  pointer-events: none;
+  -webkit-mask-image: radial-gradient(ellipse 65% 55% at 50% 50%, #000 35%, transparent 78%);
+          mask-image: radial-gradient(ellipse 65% 55% at 50% 50%, #000 35%, transparent 78%);
+}
+.หกเหลี่ยม svg { width: 100%; height: 100%; display: block; }
+
+.หกเหลี่ยม .ช่อง {
+  fill: rgba(240,197,106,.035);
+  stroke: rgba(240,197,106,.16);
+  stroke-width: 1;
+}
+.หกเหลี่ยม .ช่องเด่น {
+  fill: rgba(240,197,106,.1);
+  stroke: rgba(240,197,106,.42);
+  stroke-width: 1.4;
+  animation: ช่องหายใจ 5.5s ease-in-out infinite;
+  animation-delay: var(--ดีเลย์, 0s);
+}
+@keyframes ช่องหายใจ {
+  0%,100% { opacity: .35; }
+  50%     { opacity: 1; }
+}
+
+/* ───────────── เหรียญทองร่วง ───────────── */
+
+.เหรียญ-กล่อง {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.เหรียญ {
+  position: absolute;
+  top: -8vh;
+  width: var(--ขนาด, 18px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 34% 28%, #fff4cf 0%, #f5cb6e 40%, #c8912f 100%);
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,.35), 0 2px 6px rgba(0,0,0,.4);
+  animation: เหรียญร่วง var(--นาน, 2s) cubic-bezier(.4,.05,.6,1) forwards;
+  animation-delay: var(--ดีเลย์, 0s);
+}
+
+@keyframes เหรียญร่วง {
+  0%   { transform: translateY(0) rotate(0deg) scaleX(1); opacity: 0; }
+  8%   { opacity: 1; }
+  85%  { opacity: 1; }
+  100% { transform: translateY(118vh) rotate(var(--หมุน, 360deg)) scaleX(.35); opacity: 0; }
+}
+
+/* ───────────── ฉากอัป 3 ดาว ───────────── */
+
+#ฉาก-สามดาว { gap: 0; }
+
+.สามดาว-เวที {
+  position: relative;
+  width: min(80vw, 340px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+}
+
+.ตัวรวม {
+  position: absolute;
+  width: 31%;
+  aspect-ratio: 1;
+  opacity: 0;
+}
+
+/* สามตัววิ่งเข้ามาชนกันกลางเวที */
+#ฉาก-สามดาว.เล่น .ตัวรวม-1 { animation: เข้าซ้าย  1.15s cubic-bezier(.5,-.3,.5,1.4) .15s forwards; }
+#ฉาก-สามดาว.เล่น .ตัวรวม-2 { animation: เข้าขวา   1.15s cubic-bezier(.5,-.3,.5,1.4) .15s forwards; }
+#ฉาก-สามดาว.เล่น .ตัวรวม-3 { animation: เข้าล่าง  1.15s cubic-bezier(.5,-.3,.5,1.4) .15s forwards; }
+
+@keyframes เข้าซ้าย {
+  0%   { transform: translate(-165%, -30%) scale(.75); opacity: 0; }
+  25%  { opacity: 1; }
+  88%  { transform: translate(-16%, -12%) scale(1); opacity: 1; }
+  100% { transform: translate(0,0) scale(.9); opacity: 0; }
+}
+@keyframes เข้าขวา {
+  0%   { transform: translate(165%, -30%) scale(.75); opacity: 0; }
+  25%  { opacity: 1; }
+  88%  { transform: translate(16%, -12%) scale(1); opacity: 1; }
+  100% { transform: translate(0,0) scale(.9); opacity: 0; }
+}
+@keyframes เข้าล่าง {
+  0%   { transform: translate(0, 175%) scale(.75); opacity: 0; }
+  25%  { opacity: 1; }
+  88%  { transform: translate(0, 24%) scale(1); opacity: 1; }
+  100% { transform: translate(0,0) scale(.9); opacity: 0; }
+}
+
+/* แสงวาบตอนรวมร่าง */
+#ฉาก-สามดาว .วาบ {
+  position: absolute;
+  width: 100%; aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff 0%, #ffe9b0 22%, rgba(240,197,106,0) 62%);
+  opacity: 0;
+  transform: scale(.1);
+}
+@keyframes วาบขึ้น {
+  0%   { opacity: 0;   transform: scale(.1); }
+  22%  { opacity: 1;   transform: scale(1.1); }
+  100% { opacity: 0;   transform: scale(1.55); }
+}
+
+/* วงแหวนทองแผ่ออก */
+#ฉาก-สามดาว .วงแหวน {
+  position: absolute;
+  width: 46%; aspect-ratio: 1;
+  border: 3px solid var(--ทอง);
+  border-radius: 50%;
+  opacity: 0;
+}
+@keyframes แหวนแผ่ {
+  0%   { opacity: .95; transform: scale(.35); border-width: 5px; }
+  100% { opacity: 0;   transform: scale(2.1); border-width: .5px; }
+}
+
+/* ตัวทองที่โผล่มาแทนสามตัวเดิม */
+#ฉาก-สามดาว .ตัวทอง {
+  position: absolute;
+  width: 46%;
+  aspect-ratio: 1;
+  opacity: 0;
+  filter: drop-shadow(0 0 20px rgba(240,197,106,.65));
+}
+@keyframes ทองผุด {
+  0%   { opacity: 0; transform: scale(.2); }
+  55%  { opacity: 1; transform: scale(1.12); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* ดาวสามดวงขึ้นทีละดวง */
+.ดาวสาม {
+  display: flex;
+  gap: .35rem;
+  margin-top: -1.5rem;
+  font-size: clamp(2rem, 9vw, 3.2rem);
+  line-height: 1;
+  color: var(--ทอง);
+  text-shadow: 0 0 18px rgba(240,197,106,.8);
+}
+.ดาวสาม span {
+  opacity: 0;
+  transform: scale(.2) rotate(-40deg);
+}
+#ฉาก-สามดาว.เล่น .ดาวสาม span {
+  animation: ดาวผุด .55s cubic-bezier(.2,1.7,.4,1) forwards;
+}
+.ดาวสาม span:nth-child(1) { animation-delay: 2.15s; }
+.ดาวสาม span:nth-child(2) { animation-delay: 2.40s; }
+.ดาวสาม span:nth-child(3) { animation-delay: 2.65s; }
+
+@keyframes ดาวผุด {
+  to { opacity: 1; transform: none; }
+}
+
+/* ───────────── ตัวละครวิ่งข้ามจอ ───────────── */
+
+.วิ่ง-กล่อง {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.วิ่ง {
+  position: absolute;
+  bottom: var(--สูงจากพื้น, 16vh);
+  width: calc(58px * var(--โต, 1));
+  aspect-ratio: 1;
+  opacity: .92;
+  filter: drop-shadow(0 6px 12px rgba(0,0,0,.5));
+}
+
+.วิ่ง.ไปขวา { left: -80px;  animation: เดินไปขวา var(--นาน, 9s) linear forwards; }
+.วิ่ง.ไปซ้าย { right: -80px; animation: เดินไปซ้าย var(--นาน, 9s) linear forwards; }
+.วิ่ง.ไปซ้าย .ตัว { transform: scaleX(-1); }
+
+@keyframes เดินไปขวา  { to { transform: translateX(calc(100vw + 160px)); } }
+@keyframes เดินไปซ้าย { to { transform: translateX(calc(-100vw - 160px)); } }
+
+/* เด้งขึ้นลงระหว่างเดิน ทำที่ svg ชั้นใน จะได้ไม่ชนกับ transform ของการเลื่อน */
+.วิ่ง .ตัว { animation: เด้งเดิน .45s ease-in-out infinite; }
+.วิ่ง.ไปซ้าย .ตัว { animation: เด้งเดินกลับด้าน .45s ease-in-out infinite; }
+
+@keyframes เด้งเดิน {
+  0%,100% { transform: translateY(0); }
+  50%     { transform: translateY(-7%); }
+}
+@keyframes เด้งเดินกลับด้าน {
+  0%,100% { transform: scaleX(-1) translateY(0); }
+  50%     { transform: scaleX(-1) translateY(-7%); }
+}
+
+#ฉาก-สามดาว.เล่น .วาบ { animation: วาบขึ้น .85s ease-out 1.2s forwards; }
+
+#ฉาก-สามดาว.เล่น .วงแหวน { animation: แหวนแผ่ 1.3s cubic-bezier(.2,.7,.3,1) 1.35s forwards; }
+
+#ฉาก-สามดาว.เล่น .ตัวทอง { animation: ทองผุด 1s cubic-bezier(.2,1.5,.4,1) 1.45s forwards; }
+
+/* ══════════════════════════════════════════════════════════════
+   ฉากปิดท้าย · กำแพงรูป + จดหมายอวยพรตรงกลาง
+   ══════════════════════════════════════════════════════════════ */
+
+.กำแพง {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+}
+
+/* เรียงเป็นคอลัมน์แบบก่ออิฐ รูปแนวตั้งแนวนอนคละกันได้ไม่มีช่องโหว่ */
+.กำแพง-ใน {
+  column-count: 3;
+  column-gap: 5px;
+  padding: 5px;
+  /* สูงเกินจอไว้ เพื่อให้เลื่อนขึ้นช้า ๆ ได้โดยไม่เห็นขอบล่าง */
+  width: 100%;
+  animation: กำแพงไหล 46s linear infinite alternate;
+}
+
+@keyframes กำแพงไหล {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-32%); }
+}
+
+.กำแพง-ใน img {
+  width: 100%;
+  display: block;
+  margin-bottom: 5px;
+  border-radius: 5px;
+  break-inside: avoid;
+  opacity: 0;
+  animation: รูปผุด 1.1s ease-out forwards;
+  animation-delay: var(--ดีเลย์, 0s);
+}
+
+@keyframes รูปผุด {
+  to { opacity: .72; }
+}
+
+/* หรี่ตรงกลางลงให้จดหมายอ่านออก ขอบยังสว่างเห็นรูปชัด */
+.กำแพง::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 72% 52% at 50% 50%, rgba(5,7,15,.93) 32%, rgba(5,7,15,.35) 78%),
+    linear-gradient(rgba(5,7,15,.5), rgba(5,7,15,.5));
+}
+
+/* ───────────── การ์ดจดหมายตรงกลาง ───────────── */
+
+.การ์ด {
+  position: relative;
+  z-index: 2;
+  width: min(84vw, 420px);
+  padding: clamp(1.6rem, 6.5vw, 2.4rem) clamp(1.4rem, 6vw, 2.2rem) clamp(1.3rem, 5vw, 1.9rem);
+  border-radius: 6px;
+  background: linear-gradient(170deg, #fdf8ee 0%, #f2e6cf 100%);
+  box-shadow: 0 26px 70px rgba(0,0,0,.72);
+  color: #3a3226;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .9rem;
+  /* กระดาษเอียงนิดเดียว ให้ดูเหมือนวางทับรูปจริง ๆ ไม่ใช่กล่องคอมพิวเตอร์ */
+  rotate: -1.1deg;
+}
+
+.การ์ด-หัว {
+  font-family: var(--ฟอนต์อังกฤษ);
+  font-weight: 700;
+  font-size: clamp(2.4rem, 13vw, 3.8rem);
+  line-height: 1;
+  letter-spacing: .02em;
+  color: #e0982f;
+  text-shadow: 0 2px 0 rgba(255,255,255,.7);
+  opacity: 0;
+  animation: หัวผุด .9s cubic-bezier(.2,1.5,.4,1) forwards;
+  animation-delay: var(--ดีเลย์, .3s);
+}
+
+@keyframes หัวผุด {
+  from { opacity: 0; transform: scale(.55) rotate(-8deg); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ข้อความในการ์ดต้องเป็นสีเข้ม เพราะพื้นเป็นกระดาษ ไม่ใช่ท้องฟ้า */
+.การ์ด .ปิดท้าย-เนื้อ {
+  color: #443a2b;
+  font-size: clamp(1.1rem, 4.8vw, 1.35rem);
+  line-height: 1.85;
+  max-width: 22ch;
+  gap: .55rem;
+}
+
+.การ์ด .ลงชื่อ {
+  color: #9a6b22;
+  font-size: 1.02rem;
+}
+
+.การ์ด #ปุ่มดูใหม่ {
+  margin-top: .4rem;
+  border-color: rgba(154,107,34,.45);
+  color: #9a6b22;
+}
+
+/* เส้นคั่นบาง ๆ ใต้หัว ให้การ์ดดูเป็นการ์ดจริง */
+.การ์ด-หัว::after {
+  content: "";
+  display: block;
+  width: 56px;
+  height: 2px;
+  margin: .5rem auto 0;
+  background: linear-gradient(90deg, transparent, #d9ab5a, transparent);
+}
+
+@media (min-width: 720px) {
+  .กำแพง-ใน { column-count: 5; }
+}
+
+/* ───────────── โหมดหยุดนิ่ง (สำหรับตรวจงานเท่านั้น) ─────────────
+   ต่อท้าย URL ว่า &นิ่ง=1 จะข้ามอนิเมชันทั้งหมดไปที่สภาพสุดท้ายทันที
+   ใช้ดูว่าเลย์เอาต์วางถูกไหม โดยไม่ต้องนั่งรอจังหวะ
+   คนรับไม่มีทางเจอโหมดนี้ เพราะลิงก์ที่ส่งไปไม่มีพารามิเตอร์นี้      */
+.นิ่ง *, .นิ่ง *::before, .นิ่ง *::after {
+  animation-delay: -2s !important;
+  animation-duration: .001s !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: .001s !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ปฏิทินแบบน่ารัก — ทับสไตล์เดิมที่ดูเป็นแอปธนาคารเกินไป
+   เปลี่ยนจากการ์ดกระจกสีเข้ม เป็นกระดาษครีมติดเทปกาว
+   ══════════════════════════════════════════════════════════════ */
+
+.ปฏิทิน-กรอบ { position: relative; }
+
+/* ตัวละครชะโงกอยู่มุมบนขวาของปฏิทิน */
+.ชะโงก {
+  position: absolute;
+  top: -46px;
+  right: 6px;
+  width: 62px;
+  z-index: 3;
+  rotate: 8deg;
+  animation: ชะโงกเด้ง 2.6s ease-in-out infinite;
+  filter: drop-shadow(0 5px 8px rgba(0,0,0,.45));
+}
+@keyframes ชะโงกเด้ง {
+  0%,100% { transform: translateY(0); }
+  50%     { transform: translateY(-6px); }
+}
+
+.ปฏิทิน {
+  position: relative;
+  width: min(90vw, 358px);
+  padding: 1.35rem 1rem 1.3rem;
+  border: 0;
+  border-radius: 24px;
+  background: linear-gradient(170deg, #fffaf0 0%, #fdeddb 100%);
+  backdrop-filter: none;
+  box-shadow: 0 20px 48px rgba(0,0,0,.55), inset 0 -4px 0 rgba(180,140,95,.18);
+}
+
+/* เทปกาวสองมุมบน ให้เหมือนปฏิทินที่แปะไว้จริง */
+.เทป {
+  position: absolute;
+  top: -10px;
+  width: 56px; height: 20px;
+  background: rgba(255, 214, 148, .62);
+  box-shadow: 0 1px 3px rgba(0,0,0,.25);
+}
+.เทป-ซ้าย { left: 14px;  rotate: -7deg; }
+.เทป-ขวา  { right: 14px; rotate:  6deg; }
+
+.ปฏิทิน-หัว {
+  font-family: var(--ฟอนต์ไทย);
+  font-weight: 700;
+  font-size: 1.4rem;
+  letter-spacing: 0;
+  color: #e07a2f;
+  margin-bottom: .9rem;
+}
+
+.ปฏิทิน-สัปดาห์ span {
+  font-family: var(--ฟอนต์ไทย);
+  font-size: .74rem;
+  font-weight: 400;
+  color: #b59a7c;
+  padding-bottom: .45rem;
+}
+
+.ปฏิทิน-สัปดาห์, .ปฏิทิน-ช่อง { gap: 5px; }
+
+.ปฏิทิน-ช่อง button {
+  border-radius: 13px;
+  background: #ffffff;
+  color: #6a5745;
+  font-family: var(--ฟอนต์ไทย);
+  font-weight: 500;
+  font-size: 1rem;
+  /* ขอบล่างหนา ๆ ทำให้ปุ่มดูกดได้จริง เด็กกว่าเงาเบลอ ๆ */
+  box-shadow: 0 3px 0 #ecd9c1;
+  transition: transform .12s, box-shadow .12s, background .2s;
+}
+.ปฏิทิน-ช่อง button:hover { background: #fff6e6; }
+.ปฏิทิน-ช่อง button:active {
+  transform: translateY(3px);
+  box-shadow: 0 0 0 #ecd9c1;
+}
+
+/* วันหยุดสุดสัปดาห์ย้อมสีอ่อน ๆ ให้ปฏิทินไม่แบน
+   (ช่องว่างต้นเดือนก็นับเป็นลูกด้วย คอลัมน์จึงตรงกับ nth-child พอดี) */
+.ปฏิทิน-ช่อง button:nth-child(7n+1) { background: #fff0f3; color: #c4697f; }
+.ปฏิทิน-ช่อง button:nth-child(7n)   { background: #f2f0ff; color: #7a6bb8; }
+.ปฏิทิน-ช่อง button:nth-child(7n+1):hover { background: #ffe3ea; }
+.ปฏิทิน-ช่อง button:nth-child(7n):hover   { background: #e8e4ff; }
+
+.ปฏิทิน-ช่อง .ว่าง { background: none; box-shadow: none; }
+
+/* กดถูก — เรืองทองแล้วเด้ง */
+.ปฏิทิน-ช่อง button.ถูก {
+  background: radial-gradient(circle, #ffe9b0, #ffc94d) !important;
+  color: #7a4a0c !important;
+  box-shadow: 0 0 0 #ecd9c1;
+  animation: เรือง 1s ease-out forwards, เด้งถูก .5s ease-out;
+}
+@keyframes เด้งถูก {
+  0%   { transform: scale(1); }
+  45%  { transform: scale(1.35); }
+  100% { transform: scale(1.12); }
+}
+
+.คำถาม { color: var(--ทองอ่อน); font-weight: 400; }
+
+/* คำหนึ่งคำต้องไม่ถูกตัดบรรทัดกลางคำ
+   (.คำ ห่อตัวอักษรไว้ ส่วน .เว้น คือช่องไฟที่ยอมให้ตัดบรรทัดได้) */
+.คำใหญ่ .คำ { display: inline-block; white-space: nowrap; }
+.คำใหญ่ { line-height: 1.12; }

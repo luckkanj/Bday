@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- กันไม่ให้กูเกิลเก็บหน้านี้เข้าสารบัญ -->
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="theme-color" content="#070a1c">
+<title>&#9825;</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Mali:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+<!-- ชั้นล่างสุด: ดาวบนท้องฟ้า วาดครั้งเดียวด้วย JS -->
+<div id="ดาว" aria-hidden="true"></div>
+
+<!-- ชั้นพลุ คลุมทั้งจอ อยู่หลังเนื้อหาแต่หน้าท้องฟ้า -->
+<canvas id="พลุ" aria-hidden="true"></canvas>
+
+<!-- ปุ่มปิดเสียง อยู่มุมขวาบนตลอดทุกฉาก -->
+<button id="ปุ่มเสียง" type="button" hidden aria-label="ปิดเสียงเพลง">
+  <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+    <path class="ลำโพง" d="M4 9v6h4l5 4V5L8 9H4z"/>
+    <g class="คลื่น"><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/></g>
+    <path class="กากบาท" d="M16.5 9.5l5 5m0-5l-5 5"/>
+  </svg>
+</button>
+
+<main id="เวที">
+
+  <!-- ① ซองจดหมาย -->
+  <section class="ฉาก" id="ฉาก-ซอง">
+    <div class="ซอง-กรอบ">
+      <button class="ซอง" id="ซอง" type="button" aria-label="แตะเพื่อเปิดจดหมาย">
+        <span class="ซอง-หลัง"></span>
+        <span class="ซอง-ตัว"></span>
+        <span class="ซอง-ฝา"></span>
+        <span class="ซอง-ตรา">&#9825;</span>
+      </button>
+    </div>
+    <p class="คำชวน" id="คำชวน"></p>
+  </section>
+
+  <!-- ② จดหมาย -->
+  <section class="ฉาก" id="ฉาก-จดหมาย">
+    <div class="กระดาษ">
+      <div class="กระดาษ-เนื้อ" id="จดหมาย-เนื้อ"></div>
+      <button class="ปุ่ม" id="ปุ่มต่อ" type="button"></button>
+    </div>
+  </section>
+
+  <!-- ③ ปฏิทิน -->
+  <section class="ฉาก" id="ฉาก-ปฏิทิน">
+    <!-- กระดานหกเหลี่ยมจาง ๆ อยู่หลังปฏิทิน -->
+    <div class="หกเหลี่ยม" id="หกเหลี่ยม" aria-hidden="true"></div>
+    <p class="คำถาม" id="ปฏิทิน-คำถาม"></p>
+    <div class="ปฏิทิน-กรอบ">
+      <div class="ชะโงก" id="ชะโงก" aria-hidden="true"></div>
+      <div class="ปฏิทิน" id="ปฏิทิน">
+        <span class="เทป เทป-ซ้าย" aria-hidden="true"></span>
+        <span class="เทป เทป-ขวา" aria-hidden="true"></span>
+        <div class="ปฏิทิน-หัว" id="ปฏิทิน-หัว"></div>
+        <div class="ปฏิทิน-สัปดาห์">
+          <span>อา</span><span>จ</span><span>อ</span><span>พ</span><span>พฤ</span><span>ศ</span><span>ส</span>
+        </div>
+        <div class="ปฏิทิน-ช่อง" id="ปฏิทิน-ช่อง"></div>
+      </div>
+    </div>
+    <p class="คำหยอก" id="คำหยอก" role="status" aria-live="polite"></p>
+  </section>
+
+  <!-- ③½ อัป 3 ดาว — ตัวละครสามตัวรวมร่าง -->
+  <section class="ฉาก" id="ฉาก-สามดาว">
+    <div class="สามดาว-เวที">
+      <div class="ตัวรวม ตัวรวม-1" id="ตัวรวม-1"></div>
+      <div class="ตัวรวม ตัวรวม-2" id="ตัวรวม-2"></div>
+      <div class="ตัวรวม ตัวรวม-3" id="ตัวรวม-3"></div>
+      <div class="วาบ"      id="วาบ"></div>
+      <div class="วงแหวน"   id="วงแหวน"></div>
+      <div class="ตัวทอง"   id="ตัวทอง"></div>
+    </div>
+    <div class="ดาวสาม" id="ดาวสาม" aria-label="สามดาว">
+      <span>★</span><span>★</span><span>★</span>
+    </div>
+  </section>
+
+  <!-- ④ พลุ + คำอวยพร -->
+  <section class="ฉาก" id="ฉาก-พลุ">
+    <h1 class="คำใหญ่" id="คำใหญ่"></h1>
+    <p class="เลขอายุ" id="เลขอายุ"></p>
+    <p class="คำรอง" id="คำรอง"></p>
+  </section>
+
+  <!-- ⑤ สไลด์ความทรงจำ -->
+  <section class="ฉาก" id="ฉาก-สไลด์">
+    <div class="สไลด์-เวที" id="สไลด์-เวที"></div>
+    <!-- ตัวละครเดินข้ามจอเป็นระยะ ๆ -->
+    <div class="วิ่ง-กล่อง" id="วิ่ง-กล่อง" aria-hidden="true"></div>
+    <div class="สไลด์-คำ">
+      <p class="สไลด์-หัว" id="สไลด์-หัว"></p>
+      <p class="สไลด์-รอง" id="สไลด์-รอง"></p>
+    </div>
+    <div class="สไลด์-คุม">
+      <button id="ปุ่มหยุด" class="ปุ่มเล็ก" type="button" aria-label="หยุดสไลด์ชั่วคราว">หยุด</button>
+      <div class="สไลด์-จุด" id="สไลด์-จุด" aria-hidden="true"></div>
+      <button id="ปุ่มข้าม" class="ปุ่มเล็ก" type="button" aria-label="ข้ามไปหน้าสุดท้าย">ข้าม</button>
+    </div>
+  </section>
+
+  <!-- ⑥ ปิดท้าย — กำแพงรูปเต็มจอ + จดหมายอวยพรตรงกลาง -->
+  <section class="ฉาก" id="ฉาก-ปิดท้าย">
+    <div class="กำแพง" id="กำแพง" aria-hidden="true">
+      <div class="กำแพง-ใน" id="กำแพง-ใน"></div>
+    </div>
+
+    <div class="การ์ด">
+      <p class="การ์ด-หัว" id="การ์ด-หัว"></p>
+      <div class="ปิดท้าย-เนื้อ" id="ปิดท้าย-เนื้อ"></div>
+      <p class="ลงชื่อ" id="ลงชื่อ"></p>
+      <button class="ปุ่ม ปุ่ม-โปร่ง" id="ปุ่มดูใหม่" type="button">ดูอีกครั้ง</button>
+    </div>
+  </section>
+
+</main>
+
+<!-- เหรียญทองร่วง คลุมทั้งจอ อยู่หน้าสุด -->
+<div class="เหรียญ-กล่อง" id="เหรียญ-กล่อง" aria-hidden="true"></div>
+
+<audio id="เพลง" loop preload="auto"></audio>
+
+<script src="content.js"></script>
+<script src="js/fireworks.js"></script>
+<script src="js/units.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
