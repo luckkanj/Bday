@@ -107,10 +107,23 @@ def main() -> int:
         print(f"สร้างโฟลเดอร์ {ต้นฉบับ.name}/ ให้แล้ว เอารูปกับคลิปไปวางแล้วรันใหม่")
         return 1
 
+    def คีย์เรียง(f: Path):
+        """เรียงแบบคนอ่าน: 1, 2, ... 9, 10  ไม่ใช่ 1, 10, 2
+
+        ถ้าเรียงด้วยตัวอักษรเฉย ๆ ชื่อ "10.xxx" จะมาก่อน "2.xxx"
+        เพราะเทียบทีละตัวอักษรแล้ว '1' < '2' ลำดับเรื่องจะสลับทันที
+        วิธีแก้คือหั่นชื่อเป็นท่อน ๆ แล้วแปลงท่อนที่เป็นตัวเลขให้เป็นจำนวนจริง
+        """
+        import re as _re
+        return [int(t) if t.isdigit() else t.lower()
+                for t in _re.split(r'(\d+)', f.name)]
+
     สื่อ = sorted(
         [f for f in ต้นฉบับ.iterdir()
-         if f.suffix.lower() in นามสกุลรูป | นามสกุลคลิป],
-        key=lambda f: f.name.lower(),
+         # ":Zone.Identifier" คือไฟล์ขยะที่ Windows แปะมาตอนก๊อปข้ามเครื่อง
+         if f.is_file() and ':' not in f.name
+         and f.suffix.lower() in นามสกุลรูป | นามสกุลคลิป],
+        key=คีย์เรียง,
     )
     if not สื่อ:
         print(f"ไม่มีรูปหรือคลิปใน {ต้นฉบับ.name}/ เลย")
