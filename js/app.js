@@ -255,11 +255,25 @@
   let นาฬิกา = null;
   let หยุดอยู่ = false;
 
-  // โหลดรูปล่วงหน้า และคัดเฉพาะใบที่โหลดได้จริง
-  // (ถ้าใน content.js อ้างถึงรูปที่ยังไม่ได้ใส่ ต้องข้ามไปเงียบ ๆ ไม่ใช่โชว์รูปแตก)
-  function เตรียมรูป() {
+  // โหลดสื่อล่วงหน้า และคัดเฉพาะชิ้นที่โหลดได้จริง
+  // (ถ้าใน content.js อ้างถึงไฟล์ที่ยังไม่ได้ใส่ ต้องข้ามไปเงียบ ๆ ไม่ใช่โชว์กรอบแตก)
+  function เตรียมสื่อ() {
     const รายการ = เนื้อหา.สไลด์ || [];
     return Promise.all(รายการ.map((ส) => new Promise((ผ่าน) => {
+
+      if (ส.วิดีโอ) {
+        const v = document.createElement('video');
+        v.muted = true;
+        v.playsInline = true;
+        v.preload = 'auto';
+        // บางเบราว์เซอร์ไม่ยิง error เลยถ้าไฟล์มีปัญหา ต้องตั้งเวลากันค้างไว้เอง
+        const หมดเวลา = setTimeout(() => ผ่าน(null), 9000);
+        v.addEventListener('loadeddata', () => { clearTimeout(หมดเวลา); ผ่าน(ส); }, { once: true });
+        v.addEventListener('error',      () => { clearTimeout(หมดเวลา); ผ่าน(null); }, { once: true });
+        v.src = ส.วิดีโอ;
+        return;
+      }
+
       if (!ส.รูป) return ผ่าน(null);
       const im = new Image();
       im.onload  = () => ผ่าน(ส);
@@ -269,7 +283,7 @@
   }
 
   function เริ่มสไลด์() {
-    เตรียมรูป().then((ok) => {
+    เตรียมสื่อ().then((ok) => {
       รายการสไลด์ = ok;
 
       // ไม่มีรูปสักใบ ก็ข้ามไปฉากปิดท้ายเลย
@@ -289,6 +303,20 @@
   function สร้างชั้นรูป() {
     const เวที = $('สไลด์-เวที');
     ชั้นรูป = รายการสไลด์.map((ส) => {
+      if (ส.วิดีโอ) {
+        const v = document.createElement('video');
+        v.src = ส.วิดีโอ;
+        v.muted = true;            // บังคับปิดเสียง ไม่งั้นมือถือไม่ยอมเล่นเอง
+        v.loop = true;
+        v.preload = 'auto';
+        v.playsInline = true;
+        v.setAttribute('playsinline', '');        // iOS รุ่นเก่าอ่านแอตทริบิวต์เท่านั้น
+        v.setAttribute('webkit-playsinline', '');
+        v.setAttribute('muted', '');
+        เวที.appendChild(v);
+        return v;
+      }
+
       const im = document.createElement('img');
       im.src = ส.รูป;
       im.alt = '';
@@ -308,15 +336,25 @@
     const ส = รายการสไลด์[i];
     const นาน = (ส.วินาที || 6);
 
-    ชั้นรูป.forEach((im, k) => {
+    ชั้นรูป.forEach((el, k) => {
+      const เป็นวิดีโอ = el.tagName === 'VIDEO';
+
       if (k === i) {
-        // สุ่มทิศการเลื่อนภาพ ไม่ให้ทุกใบขยับเหมือนกันจนน่าเบื่อ
-        im.style.setProperty('--นาน', นาน + 's');
-        im.style.setProperty('--เลื่อนx', ((Math.random() * 4 - 2)).toFixed(1) + '%');
-        im.style.setProperty('--เลื่อนy', ((Math.random() * 4 - 2)).toFixed(1) + '%');
-        im.classList.add('แสดง');
+        if (เป็นวิดีโอ) {
+          // วิดีโอขยับอยู่แล้ว ไม่ต้องใส่ Ken Burns ซ้อนเข้าไปอีก
+          el.currentTime = 0;
+          const ลอง = el.play();
+          if (ลอง && ลอง.catch) ลอง.catch(() => {});
+        } else {
+          // สุ่มทิศการเลื่อนภาพ ไม่ให้ทุกใบขยับเหมือนกันจนน่าเบื่อ
+          el.style.setProperty('--นาน', นาน + 's');
+          el.style.setProperty('--เลื่อนx', ((Math.random() * 4 - 2)).toFixed(1) + '%');
+          el.style.setProperty('--เลื่อนy', ((Math.random() * 4 - 2)).toFixed(1) + '%');
+        }
+        el.classList.add('แสดง');
       } else {
-        im.classList.remove('แสดง');
+        el.classList.remove('แสดง');
+        if (เป็นวิดีโอ) el.pause();
       }
     });
 
@@ -344,11 +382,16 @@
   $('ปุ่มหยุด').addEventListener('click', function () {
     หยุดอยู่ = !หยุดอยู่;
     this.textContent = หยุดอยู่ ? 'เล่น' : 'หยุด';
+    const สื่อ = ชั้นรูป[ดัชนี];
+    const เป็นวิดีโอ = สื่อ && สื่อ.tagName === 'VIDEO';
+
     if (หยุดอยู่) {
       clearTimeout(นาฬิกา);
-      ชั้นรูป[ดัชนี].style.animationPlayState = 'paused';
+      if (เป็นวิดีโอ) สื่อ.pause();
+      else if (สื่อ) สื่อ.style.animationPlayState = 'paused';
     } else {
-      ชั้นรูป[ดัชนี].style.animationPlayState = 'running';
+      if (เป็นวิดีโอ) { const ล = สื่อ.play(); if (ล && ล.catch) ล.catch(() => {}); }
+      else if (สื่อ) สื่อ.style.animationPlayState = 'running';
       นาฬิกา = setTimeout(ถัดไป, 2500);
     }
   });
@@ -366,14 +409,16 @@
      ถ้ารูปน้อย ก็วนซ้ำจนเต็ม ไม่งั้นกำแพงจะโหว่ครึ่งจอ */
   function สร้างกำแพง() {
     const ใน = $('กำแพง-ใน');
-    if (!รายการสไลด์.length) { $('กำแพง').style.display = 'none'; return; }
+    // เอาเฉพาะรูปนิ่ง — วิดีโอสิบกว่าช่องเล่นพร้อมกันจะทำให้มือถือค้าง
+    const รูปนิ่ง = รายการสไลด์.filter((ส) => ส.รูป && !ส.วิดีโอ);
+    if (!รูปนิ่ง.length) { $('กำแพง').style.display = 'none'; return; }
 
-    const เป้า = Math.max(18, รายการสไลด์.length);
+    const เป้า = Math.max(18, รูปนิ่ง.length);
     const ชิ้น = document.createDocumentFragment();
 
     for (let i = 0; i < เป้า; i++) {
       const im = document.createElement('img');
-      im.src = รายการสไลด์[i % รายการสไลด์.length].รูป;
+      im.src = รูปนิ่ง[i % รูปนิ่ง.length].รูป;
       im.alt = '';
       im.loading = 'lazy';
       im.style.setProperty('--ดีเลย์', (0.25 + (i % 12) * 0.11).toFixed(2) + 's');
@@ -387,7 +432,7 @@
 
     // เข้าฉากนี้ตรง ๆ ได้ (ทางลัด ?ดู=ปิดท้าย) ต้องโหลดรูปเองก่อนสร้างกำแพง
     if (!รายการสไลด์.length) {
-      เตรียมรูป().then((ok) => { รายการสไลด์ = ok; ปิดท้ายจริง(); });
+      เตรียมสื่อ().then((ok) => { รายการสไลด์ = ok; ปิดท้ายจริง(); });
       return;
     }
     ปิดท้ายจริง();

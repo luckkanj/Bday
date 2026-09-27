@@ -1052,3 +1052,15 @@ body {
    (.คำ ห่อตัวอักษรไว้ ส่วน .เว้น คือช่องไฟที่ยอมให้ตัดบรรทัดได้) */
 .คำใหญ่ .คำ { display: inline-block; white-space: nowrap; }
 .คำใหญ่ { line-height: 1.12; }
+
+/* ───────────── วิดีโอในสไลด์ ─────────────
+   ใช้กฎเดียวกับรูปนิ่ง ยกเว้นไม่ใส่ Ken Burns เพราะคลิปขยับอยู่แล้ว */
+.สไลด์-เวที video {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 1.4s var(--โค้ง);
+}
+.สไลด์-เวที video.แสดง { opacity: 1; }
