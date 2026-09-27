@@ -123,8 +123,17 @@ def main() -> int:
         return 1
 
     รูปออก.mkdir(exist_ok=True)
-    if มีคลิป:
-        คลิปออก.mkdir(exist_ok=True)
+    คลิปออก.mkdir(exist_ok=True)
+
+    # ล้างผลลัพธ์รอบก่อนทิ้งก่อนเสมอ
+    # ถ้าไม่ล้าง พอเพิ่มหรือลบไฟล์แล้วเลขลำดับขยับ ของรอบเก่าจะค้างอยู่
+    # แล้วถูกอัปขึ้นเว็บทั้งที่ไม่มีใครเรียกใช้ กินพื้นที่เปล่า ๆ
+    เก่า = [f for f in list(รูปออก.iterdir()) + list(คลิปออก.iterdir())
+            if f.is_file() and f.suffix.lower() in {".jpg", ".mp4"}]
+    for f in เก่า:
+        f.unlink()
+    if เก่า:
+        print(f"ล้างผลลัพธ์รอบก่อน {len(เก่า)} ไฟล์\n")
 
     สำเร็จ = []
 
