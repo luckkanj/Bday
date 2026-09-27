@@ -300,28 +300,42 @@
 
   let ชั้นรูป = [];
 
+  /* แต่ละใบเป็นกรอบหนึ่งอัน ข้างในมีสื่อจริงวางอยู่กลาง
+     พื้นหลังของกรอบคือรูปเดียวกันที่ขยายแล้วเบลอ (ทำใน CSS ผ่านตัวแปร --ภาพ)
+
+     ทำแบบนี้เพราะรูปมือถือเป็น 3:4 แต่จอเป็น 9:19.5
+     ถ้าขยายให้เต็มจอจะโดนครอบตัดข้างออกเกือบ 40% หัวคนหลุดเฟรมได้
+     วิธีนี้เห็นรูปเต็มใบ แต่จอก็ไม่มีแถบดำว่าง ๆ                      */
   function สร้างชั้นรูป() {
     const เวที = $('สไลด์-เวที');
+
     ชั้นรูป = รายการสไลด์.map((ส) => {
+      const ใบ = document.createElement('div');
+      ใบ.className = 'สไลด์-ใบ';
+
+      let สื่อ;
       if (ส.วิดีโอ) {
-        const v = document.createElement('video');
-        v.src = ส.วิดีโอ;
-        v.muted = true;            // บังคับปิดเสียง ไม่งั้นมือถือไม่ยอมเล่นเอง
-        v.loop = true;
-        v.preload = 'auto';
-        v.playsInline = true;
-        v.setAttribute('playsinline', '');        // iOS รุ่นเก่าอ่านแอตทริบิวต์เท่านั้น
-        v.setAttribute('webkit-playsinline', '');
-        v.setAttribute('muted', '');
-        เวที.appendChild(v);
-        return v;
+        สื่อ = document.createElement('video');
+        สื่อ.src = ส.วิดีโอ;
+        สื่อ.muted = true;          // บังคับปิดเสียง ไม่งั้นมือถือไม่ยอมเล่นเอง
+        สื่อ.loop = true;
+        สื่อ.preload = 'auto';
+        สื่อ.playsInline = true;
+        สื่อ.setAttribute('playsinline', '');      // iOS รุ่นเก่าอ่านแอตทริบิวต์เท่านั้น
+        สื่อ.setAttribute('webkit-playsinline', '');
+        สื่อ.setAttribute('muted', '');
+        // คลิปไม่ต้องทำพื้นเบลอ เพราะต้องเล่นวิดีโอสองตัวพร้อมกัน มือถือจะหน่วง
+        ใบ.classList.add('ใบวิดีโอ');
+      } else {
+        สื่อ = document.createElement('img');
+        สื่อ.src = ส.รูป;
+        สื่อ.alt = '';
+        ใบ.style.setProperty('--ภาพ', `url("${ส.รูป}")`);
       }
 
-      const im = document.createElement('img');
-      im.src = ส.รูป;
-      im.alt = '';
-      เวที.appendChild(im);
-      return im;
+      ใบ.appendChild(สื่อ);
+      เวที.appendChild(ใบ);
+      return สื่อ;                  // คืนตัวสื่อ ส่วนกรอบเข้าถึงผ่าน .parentElement
     });
   }
 
@@ -338,6 +352,7 @@
 
     ชั้นรูป.forEach((el, k) => {
       const เป็นวิดีโอ = el.tagName === 'VIDEO';
+      const ใบ = el.parentElement;        // คลาส .แสดง ติดที่กรอบ ไม่ใช่ที่ตัวสื่อ
 
       if (k === i) {
         if (เป็นวิดีโอ) {
@@ -348,12 +363,12 @@
         } else {
           // สุ่มทิศการเลื่อนภาพ ไม่ให้ทุกใบขยับเหมือนกันจนน่าเบื่อ
           el.style.setProperty('--นาน', นาน + 's');
-          el.style.setProperty('--เลื่อนx', ((Math.random() * 4 - 2)).toFixed(1) + '%');
-          el.style.setProperty('--เลื่อนy', ((Math.random() * 4 - 2)).toFixed(1) + '%');
+          el.style.setProperty('--เลื่อนx', ((Math.random() * 2 - 1)).toFixed(1) + '%');
+          el.style.setProperty('--เลื่อนy', ((Math.random() * 2 - 1)).toFixed(1) + '%');
         }
-        el.classList.add('แสดง');
+        ใบ.classList.add('แสดง');
       } else {
-        el.classList.remove('แสดง');
+        ใบ.classList.remove('แสดง');
         if (เป็นวิดีโอ) el.pause();
       }
     });

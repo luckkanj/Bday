@@ -448,25 +448,57 @@ body {
   z-index: -1;
 }
 
-.สไลด์-เวที img {
+/* แต่ละใบเป็นกรอบเต็มจอ ข้างในมีรูปวางกลาง ไม่ขยายจนล้น
+   พื้นหลังของกรอบคือรูปเดียวกันที่เบลอ จอจึงไม่มีแถบดำว่าง */
+.สไลด์-ใบ {
   position: absolute;
   inset: 0;
-  width: 100%; height: 100%;
-  object-fit: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* เว้นล่างไว้เยอะหน่อย เพราะข้อความกับปุ่มอยู่ตรงนั้น */
+  padding: 7vh 5vw 25vh;
   opacity: 0;
   transition: opacity 1.4s var(--โค้ง);
-  will-change: transform, opacity;
 }
 
-.สไลด์-เวที img.แสดง {
-  opacity: 1;
+.สไลด์-ใบ.แสดง { opacity: 1; }
+
+.สไลด์-ใบ::before {
+  content: "";
+  position: absolute;
+  inset: -10%;
+  background-image: var(--ภาพ);
+  background-size: cover;
+  background-position: center;
+  filter: blur(30px) brightness(.42) saturate(.85);
+  z-index: 0;
+}
+
+/* คลิปไม่มีพื้นเบลอ เพราะต้องเล่นวิดีโอสองตัวพร้อมกัน มือถือจะหน่วง */
+.สไลด์-ใบ.ใบวิดีโอ::before { display: none; }
+
+.สไลด์-ใบ > img,
+.สไลด์-ใบ > video {
+  position: relative;
+  z-index: 1;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto; height: auto;
+  object-fit: contain;
+  border-radius: 16px;
+  box-shadow: 0 22px 60px rgba(0,0,0,.7);
+  will-change: transform;
+}
+
+.สไลด์-ใบ.แสดง > img {
   animation: เคนเบิร์นส์ var(--นาน, 6s) linear forwards;
 }
 
 /* ภาพขยับช้า ๆ แบบสารคดี */
 @keyframes เคนเบิร์นส์ {
-  from { transform: scale(1.02) translate(0, 0); }
-  to   { transform: scale(1.14) translate(var(--เลื่อนx, -1.5%), var(--เลื่อนy, -1.5%)); }
+  from { transform: scale(1) translate(0, 0); }
+  to   { transform: scale(1.045) translate(var(--เลื่อนx, -.6%), var(--เลื่อนy, -.6%)); }
 }
 
 /* ไล่เฉดดำจากล่างขึ้นบน ให้ตัวหนังสืออ่านออกบนรูปสว่าง */
@@ -1055,12 +1087,4 @@ body {
 
 /* ───────────── วิดีโอในสไลด์ ─────────────
    ใช้กฎเดียวกับรูปนิ่ง ยกเว้นไม่ใส่ Ken Burns เพราะคลิปขยับอยู่แล้ว */
-.สไลด์-เวที video {
-  position: absolute;
-  inset: 0;
-  width: 100%; height: 100%;
-  object-fit: cover;
-  opacity: 0;
-  transition: opacity 1.4s var(--โค้ง);
-}
-.สไลด์-เวที video.แสดง { opacity: 1; }
+
