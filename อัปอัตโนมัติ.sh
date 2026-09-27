@@ -17,7 +17,7 @@ set -uo pipefail
 cd "$(dirname "$0")" || exit 1
 
 USER_NAME="luckkanj"
-REPO="oct-notes"          # ชื่อกลาง ๆ ดูไม่ออกว่าเป็นอะไร
+REPO="Bday"               # ต้องตรงกับ อัปด้วยรหัสสั้น.sh เสมอ
 API="https://api.github.com"
 
 pause_exit() { echo; read -r -p "กด Enter เพื่อปิดหน้าต่างนี้ " _; exit "${1:-0}"; }

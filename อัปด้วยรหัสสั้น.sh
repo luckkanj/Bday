@@ -17,7 +17,9 @@ cd "$(dirname "$0")" || exit 1
 export PATH="$HOME/bin:$PATH"
 export BROWSER="$HOME/bin/open-url.sh"
 
-REPO="oct-notes"          # ชื่อกลาง ๆ ดูไม่ออกว่าเป็นอะไร
+REPO="Bday"               # คุณเลือกชื่อนี้เอง 28 ก.ย. 2569
+                          # เดิมเป็น oct-notes ตั้งใจให้ดูไม่ออกว่าเป็นอะไร
+                          # ชื่อนี้จะไปโผล่ในลิงก์ luckkanj.github.io/Bday/
 
 pause_exit() { echo; read -r -p "กด Enter เพื่อปิดหน้าต่างนี้ " _; exit "${1:-0}"; }
 
