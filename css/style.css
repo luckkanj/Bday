@@ -880,7 +880,7 @@ body {
 }
 
 @keyframes รูปผุด {
-  to { opacity: .72; }
+  to { opacity: .9; }
 }
 
 /* หรี่ตรงกลางลงให้จดหมายอ่านออก ขอบยังสว่างเห็นรูปชัด */
@@ -889,8 +889,8 @@ body {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse 72% 52% at 50% 50%, rgba(5,7,15,.93) 32%, rgba(5,7,15,.35) 78%),
-    linear-gradient(rgba(5,7,15,.5), rgba(5,7,15,.5));
+    radial-gradient(ellipse 58% 40% at 50% 50%, rgba(5,7,15,.86) 28%, rgba(5,7,15,.14) 75%),
+    linear-gradient(rgba(5,7,15,.28), rgba(5,7,15,.28));
 }
 
 /* ───────────── การ์ดจดหมายตรงกลาง ───────────── */
@@ -898,8 +898,9 @@ body {
 .การ์ด {
   position: relative;
   z-index: 2;
-  width: min(84vw, 420px);
-  padding: clamp(1.6rem, 6.5vw, 2.4rem) clamp(1.4rem, 6vw, 2.2rem) clamp(1.3rem, 5vw, 1.9rem);
+  /* ย่อลงจากเดิม (84vw/420px) เพื่อให้เห็นกำแพงรูปรอบ ๆ มากขึ้น */
+  width: min(74vw, 338px);
+  padding: clamp(1.1rem, 4.6vw, 1.7rem) clamp(1rem, 4.2vw, 1.5rem) clamp(.9rem, 3.4vw, 1.3rem);
   border-radius: 6px;
   background: linear-gradient(170deg, #fdf8ee 0%, #f2e6cf 100%);
   box-shadow: 0 26px 70px rgba(0,0,0,.72);
@@ -907,7 +908,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: .9rem;
+  gap: .6rem;
   /* กระดาษเอียงนิดเดียว ให้ดูเหมือนวางทับรูปจริง ๆ ไม่ใช่กล่องคอมพิวเตอร์ */
   rotate: -1.1deg;
 }
@@ -915,7 +916,7 @@ body {
 .การ์ด-หัว {
   font-family: var(--ฟอนต์อังกฤษ);
   font-weight: 700;
-  font-size: clamp(2.4rem, 13vw, 3.8rem);
+  font-size: clamp(1.9rem, 9.5vw, 2.7rem);
   line-height: 1;
   letter-spacing: .02em;
   color: #e0982f;
@@ -933,15 +934,15 @@ body {
 /* ข้อความในการ์ดต้องเป็นสีเข้ม เพราะพื้นเป็นกระดาษ ไม่ใช่ท้องฟ้า */
 .การ์ด .ปิดท้าย-เนื้อ {
   color: #443a2b;
-  font-size: clamp(1.1rem, 4.8vw, 1.35rem);
-  line-height: 1.85;
-  max-width: 22ch;
-  gap: .55rem;
+  font-size: clamp(.95rem, 4vw, 1.12rem);
+  line-height: 1.7;
+  max-width: 100%;
+  gap: .35rem;
 }
 
 .การ์ด .ลงชื่อ {
   color: #9a6b22;
-  font-size: 1.02rem;
+  font-size: .92rem;
 }
 
 .การ์ด #ปุ่มดูใหม่ {
@@ -954,9 +955,9 @@ body {
 .การ์ด-หัว::after {
   content: "";
   display: block;
-  width: 56px;
+  width: 44px;
   height: 2px;
-  margin: .5rem auto 0;
+  margin: .35rem auto 0;
   background: linear-gradient(90deg, transparent, #d9ab5a, transparent);
 }
 
@@ -1088,3 +1089,14 @@ body {
 /* ───────────── วิดีโอในสไลด์ ─────────────
    ใช้กฎเดียวกับรูปนิ่ง ยกเว้นไม่ใส่ Ken Burns เพราะคลิปขยับอยู่แล้ว */
 
+
+/* ให้เบราว์เซอร์เกลี่ยความยาวบรรทัดเอง แทนที่จะอัดบรรทัดแรกจนเต็ม
+   แล้วเหลือคำห้อยท้ายไม่กี่ตัว · ข้อความไทยไม่มีช่องว่างระหว่างคำ
+   จุดตัดบรรทัดจึงยิ่งสำคัญ */
+.การ์ด .ปิดท้าย-เนื้อ p,
+.สไลด์-หัว,
+.สไลด์-รอง,
+.คำถาม,
+.กระดาษ-เนื้อ p {
+  text-wrap: balance;
+}
