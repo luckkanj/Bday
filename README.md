@@ -69,37 +69,30 @@ python3 -m http.server 8899
 
 ## วิธีอัปขึ้นเว็บ (GitHub Pages)
 
-ครั้งแรก:
+ตั้งค่าเสร็จหมดแล้วตั้งแต่ 28 ก.ย. 2569 · repo คือ **`luckkanj/Bday`**
+ลิงก์คือ **https://luckkanj.github.io/Bday/** และ `gh` ล็อกอินค้างไว้แล้ว
+
+แก้อะไรแล้วอัปใหม่ แค่นี้พอ:
 
 ```bash
 cd ~/ส่วนตัว/bday
-git init
-git config user.name  "luckkanj"
-git config user.email "luckkana.jareanyong@gmail.com"
-git add .
-git commit -m "เว็บเซอร์ไพรส์วันเกิด"
-git branch -M main
-git remote add origin https://github.com/luckkanj/<ชื่อ-repo>.git
-git push -u origin main
+git add <ไฟล์ที่แก้> && git commit -m "ข้อความ" && git push
 ```
 
-แล้วไปที่ **Settings → Pages → Source: main / (root) → Save**
-รอ 1–2 นาที ลิงก์จะขึ้นที่ `https://luckkanj.github.io/<ชื่อ-repo>/`
+รอ 1–2 นาทีให้ GitHub สร้างเว็บใหม่ แล้วลิงก์เดิมจะเป็นเวอร์ชันล่าสุด
 
-แก้อะไรทีหลังแล้วอัปใหม่:
-
-```bash
-git add . && git commit -m "แก้ข้อความ" && git push
-```
+> ถ้าต้องเริ่มใหม่หมดจริง ๆ ใช้ `bash อัปด้วยรหัสสั้น.sh` มันสร้าง repo
+> เปิด Pages และ push ให้ครบในตัวเดียว
 
 ---
 
 ## วิธีลบทิ้งหลังใช้เสร็จ
 
-ทำทันทีหลังวันเกิด เพราะ repo เป็นสาธารณะ
+**กำหนดลบคือ 31 ตุลาคม 2569** — ตัดสินใจไว้เมื่อ 28 ก.ย. 2569 ว่าขอเก็บลิงก์ไว้
+ให้เปิดดูย้อนหลังได้สักพัก ไม่ลบทันทีหลังวันเกิด · repo เป็นสาธารณะตลอดช่วงนั้น
 
-1. ไปที่ `https://github.com/luckkanj/<ชื่อ-repo>/settings`
-2. เลื่อนลงล่างสุด → **Delete this repository** → พิมพ์ชื่อ repo ยืนยัน
+1. ไปที่ `https://github.com/luckkanj/Bday/settings`
+2. เลื่อนลงล่างสุด → **Delete this repository** → พิมพ์ `luckkanj/Bday` ยืนยัน
 3. ลบ repo แล้วลิงก์จะตายทันที รูปทั้งหมดหายไปด้วย
 
 ถ้าอยากลบให้หมดจริง ๆ ลบบัญชี GitHub ทั้งบัญชีได้ที่ **Settings → Delete account**
@@ -116,7 +109,10 @@ git add . && git commit -m "แก้ข้อความ" && git push
   ที่เป็นลูกชั้นเดียวของ `~` โปรเจกต์นี้จึงไม่ถูกสำรองขึ้น Google Drive ของที่ทำงาน
 - `_ต้นฉบับ/` อยู่ใน `.gitignore` รูปดิบไม่ถูกอัปขึ้น GitHub
 - `robots.txt` กับ meta `noindex` กันกูเกิลเก็บหน้านี้เข้าสารบัญ
-- ไฟล์ `_test-*.html` เป็นของสำหรับตรวจงานเท่านั้น **ลบทิ้งก่อนอัปขึ้นเว็บ**
+- ไฟล์ `_test-*.html` เป็นของสำหรับตรวจงานเท่านั้น **ไม่ต้องลบ** — อยู่ใน
+  `.gitignore` แล้ว จึงไม่เคยขึ้นเว็บอยู่แล้ว (เดิมเขียนว่าให้ลบก่อนอัป ซึ่งตกยุคไปแล้ว)
+- `_test-จังหวะ.py` เป็นตัววัดเวลาจริงจากหน้าเว็บ ใช้ยืนยันว่าจังหวะที่ตั้งไว้
+  ออกมาตรงจริง · ต้องเปิด `python3 -m http.server 8899` ค้างไว้ก่อนรัน
 
 ## โครงไฟล์
 
